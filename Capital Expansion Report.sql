@@ -34,8 +34,8 @@
 
 Declare   @start_date date
 Declare   @end_date   date
-set		  @start_date =  '2017-10-01'
-set		  @end_date   =  '2018-09-30'
+set  @start_date =  '2017-10-01'
+set  @end_date   =  '2018-09-30'
 
 -- ************************************* Temp Tables ***************************************************
 -- THE #TEMPTABLE1 (UNIQUE PTS)
