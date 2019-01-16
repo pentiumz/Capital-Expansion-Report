@@ -32,6 +32,8 @@
  if object_id ('tempdb..#tempSSAenc')          is not null drop table   #tempSSAenc
  if object_id ('tempdb..#tempprenatal')		   is not null drop table   #tempprenatal
 
+-- ************************************ Set Date Range ************************************************
+
 Declare   @start_date date
 Declare   @end_date   date
 set  @start_date =  '2017-10-01'
