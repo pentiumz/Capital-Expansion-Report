@@ -5,6 +5,8 @@
 --    ***-----WARNING-- the  staff who came in for flu shots need to be directly ---------***
 --    ***-----WARNING-- excluded, so any new staff will need to be added------------------***
 --    ***-----^Their names are kept in a table somewhere in eCw, but I'm not sure where---***
+--    **------(If I have time I'll try and simplify this. Don't need to be doing so)------***
+--    **------(many pulls directly from the DB...)----------------------------------------***
 --    ***************************************************************************************
 
  if object_id ('tempdb..#temptable1')          is not null drop table   #temptable1
@@ -40,7 +42,7 @@ set  @start_date =  '2017-10-01'
 set  @end_date   =  '2018-09-30'
 
 -- ************************************* Temp Tables ***************************************************
--- THE #TEMPTABLE1 (UNIQUE PTS)
+-- THE #TEMPTABLE1 (UNIQUE PATIENTS)
 Select distinct 
 p.pid,u.dob, u.sex,p.race,u.zipcode,p.language,p.ethnicity, u.upcity
 into #temptable1 
@@ -48,10 +50,10 @@ from enc e, users u, patients p
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 and  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
-					'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','nurse','exch-ex','exch-new'
-					)
+			'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
+			'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
+			'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','nurse','exch-ex','exch-new'
+		    )
 and e.date between @start_date and @end_date
 AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
@@ -65,10 +67,10 @@ from enc e, users u, patients p
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 and  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
-					'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','exch-ex','exch-new'
-					)
+			'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
+			'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
+			'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','exch-ex','exch-new'
+		     )
 and e.date between @start_date and @end_date
 AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
@@ -76,6 +78,7 @@ AND e.deleteflag = '0'
 
 -- *********************************** AGE **********************************************************************
 --ENC AGE COUNT
+-- The below code will assign a 1 to whichever age range a pt falls into else 0
 Select SUM 
     (case when DATEDIFF(hour,u.ptdob,'2017-06-30')/8766    <=   9         then 1 else 0 end) '0-09',
 SUM (case when DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 between 10 and 19 then 1 else 0 end) '10-19',
@@ -91,10 +94,10 @@ FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 and  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
-					'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','exch-ex','exch-new'
-					)
+			'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
+			'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
+			'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','exch-ex','exch-new'
+		     )
 and e.date between @start_date and @end_date
 AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
@@ -116,6 +119,9 @@ from #temptable1
 
 -- ***********************************  GENDER  *********************************************************************** 
 --ENC by GENDER 
+-- The below code will assign a 1 to whichever gender a client falls into. If a client fall into neither binary category
+-- they're put into the 'unknown' category. This is the categorization provided by the report recipients.
+
 SELECT 
 sum( CASE when u.sex ='female'then 1 else 0 end) 'female',
 sum( CASE when u.sex ='male'  then 1 else 0 end) 'Male',
@@ -142,6 +148,8 @@ FROM #temptable1
 
 -- *********************************** RACE ***********************************************************************
 --ENC by RACE
+
+-- The below code will attempt to assign a client into the race bucket that they best fit into.
 SELECT 
 SUM( case when ((p.race like '%Indian%')  or (p.race like '%Alaska%'))  then 1 else 0 end)  'American Indian/Alaska Native',
 SUM( case when p.race like   '%asian%' then 1 else 0 end)									'Asian',
@@ -179,6 +187,8 @@ FROM #temptable1
 
 -- **************************************** ETHNICITY  ******************************************************************
 --enc ethnicity wooh 
+
+-- The below code will assign a client into, whichever ethnicity bucket they fall into.
 SELECT
 SUM( case when p.ethnicity= '2135-2' then 1 else 0 end) 'Hispanic or Latino',
 SUM( case when p.ethnicity= '2186-5' then 1 else 0 end) 'Non Hispanic',
@@ -205,8 +215,9 @@ from #temptable1
 
 -- ************************************** DC RESIDENT ********************************************************************
 --enc DC resident
+-- -- The below code will assign a client's residency status based on what
 SELECT 
-SUM( case when u.upcity like '%wash%' then 1 else 0 end)	 'DC Resident',
+SUM( case when u.upcity	    like '%wash%' then 1 else 0 end)	 'DC Resident',
 SUM( case when u.upcity not like '%wash%' then 1 else 0 end) 'Non DC Resident'
 FROM patients p, users u, enc e
 WHERE p.pid = u.uid
@@ -228,8 +239,10 @@ SUM( case when #temptable1.upcity not like '%wash%' then 1 else 0 end) 'Non DC R
 from #temptable1
 
 -- ************************************** Zipcode ********************************************************************
-
 --enc Zipcode
+-- The below code will assign a 1 to clients based on which zipcode they fall into. If a client's zip does not fall into one of the
+-- the buckets, that client is added to 'unknown'.
+
 SELECT 
 SUM( case when u.zipcode ='20001' then 1 else 0 end) '20001',
 SUM( case when u.zipcode ='20000' then 1 else 0 end) '20000',
@@ -327,17 +340,25 @@ from #temptable1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --ENC LANGUAGE
+-- This code will assign a client into the language category that best fits them. 
+-- Because of spelling errors this particular section may need to be adjusted to ensure that all clients are being captured.
+-- Also the 'unknown' section will need to be updated to account for any new languages.
 SELECT 
 SUM( case when p.language like '%Amharic%' then 1 else 0 end)   'Amharic',
-SUM( case when (p.language like '%chinese%' or p.language like '%Manda%' or p.language like '%cantonese%') then 1 else 0 end) 'Chinese%',
-SUM( case when (p.language = 'english' or p.language = 'eng') then 1 else 0 end) 'English',
+SUM( case when (p.language like '%chinese%' 
+				or p.language like '%Manda%' 
+				or p.language like '%cantonese%') 
+    				then 1 else 0 end) 'Chinese%',
+SUM( case when (p.language = 'english' 
+		or p.language = 'eng') 
+    		then 1 else 0 end) 'English',
 SUM( case when p.language like '%French%' then 1 else 0 end)    'French',
-SUM( case when p.language like '%Kore%' then 1 else 0 end)		'Korean',
-SUM( case when p.language like '%Other%' then 1 else 0 end)		'Other',
+SUM( case when p.language like '%Kore%' then 1 else 0 end)	'Korean',
+SUM( case when p.language like '%Other%' then 1 else 0 end)	'Other',
 SUM( case when p.language like '%Spanish%' then 1 else 0 end)   'Spanish',
 SUM( case when
 			    (
-				 p.language like '?'		   or
+				 p.language like '?'           or
 				 p.language like 'arabic%'     or
 				 p.language like 'deaf'        or
 				 p.language like 'Indian%'     or
@@ -379,10 +400,10 @@ SUM( case when (#temptable1.language like '?'			or
 				#temptable1.language like 'Port%'		or
 				#temptable1.language like 'Russian'		or
 				#temptable1.language like '%Sign%'		or
-				#temptable1.language like '%Tagalog%'   or
+				#temptable1.language like '%Tagalog%' 		or
 				#temptable1.language like ''			or
 				#temptable1.language like 'Tigrigna'		
-												)  then 1  else 0 end) 'Unknown' 
+				)  then 1  else 0 end) 'Unknown' 
 ,sum (case when #temptable1.language = 'Vietnamese'then 1 else 0 end) 'Vietnamese'
 from #temptable1
 
