@@ -36,8 +36,7 @@
 
 -- ************************************ Set Date Range ************************************************
 
-Declare   @start_date date
-Declare   @end_date   date
+Declare   @start_date date, @end_date   date
 set  @start_date =  '2017-10-01'
 set  @end_date   =  '2018-09-30'
 
