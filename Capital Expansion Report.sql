@@ -1,11 +1,11 @@
 --    ***************************************************************************************
 --    ***-----This generates the data required for for the DC Capital Expansion Report----***
---    ***-----Most of these are broken up INTO encounters/visits & THEN unique patients---***
+--    ***-----Most of these are broken up into encounters/visits & then unique patients---***
 --    ***-----Some code will need to be rewritten in someplaces (Language/Race/insurance)-***
 --    ***-----WARNING-- the  staff who came in for flu shots need to be directly ---------***
 --    ***-----WARNING-- excluded, so any new staff will need to be added------------------***
---    ***-----^Their names are kept in a table somewhere in eCw, but I'm not sure WHERE---***
---    **------(If I have time I'll try AND simplify this. Don't need to be doing so)------***
+--    ***-----^Their names are kept in a table somewhere in eCw, but I'm not sure where---***
+--    **------(If I have time I'll try and simplify this. Don't need to be doing so)------***
 --    **------(many pulls directly FROM the DB...)----------------------------------------***
 --    ***************************************************************************************
 
