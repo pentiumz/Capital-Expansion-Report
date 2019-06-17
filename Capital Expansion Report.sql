@@ -38,8 +38,8 @@
 
 Declare   @start_date date
 Declare   @end_date   date
-set  @start_date =  '2017-10-01'
-set  @end_date   =  '2018-09-30'
+set  @start_date =  '2018-10-01'
+set  @end_date   =  '2019-09-30'
 
 -- ************************************* Temp Tables ***************************************************
 -- THE #TEMPTABLE1 (UNIQUE PATIENTS)
@@ -94,21 +94,21 @@ AND e.deleteflag = '0'
 --ENC AGE COUNT
 -- The below code will assign a 1 to whichever age range a patient falls INTO ELSE 0
 SELECT SUM 
-    (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766    <=   9         THEN 1 ELSE 0 END) '0-09',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 10 AND 19 THEN 1 ELSE 0 END) '10-19',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 20 AND 29 THEN 1 ELSE 0 END) '20-29',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 30 AND 39 THEN 1 ELSE 0 END) '30-39',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 40 AND 49 THEN 1 ELSE 0 END) '40-49',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 50 AND 59 THEN 1 ELSE 0 END) '50-59',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 60 AND 69 THEN 1 ELSE 0 END) '60-69',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 70 AND 79 THEN 1 ELSE 0 END) '70-79',
-SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766 BETWEEN 80 AND 89 THEN 1 ELSE 0 END) '80-89',
-sUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2017-06-30')/8766    >=   90        THEN 1 ELSE 0 END) '90+'
+    (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766    <=   9         THEN 1 ELSE 0 END) '0-09',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 10 AND 19 THEN 1 ELSE 0 END) '10-19',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 20 AND 29 THEN 1 ELSE 0 END) '20-29',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 30 AND 39 THEN 1 ELSE 0 END) '30-39',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 40 AND 49 THEN 1 ELSE 0 END) '40-49',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 50 AND 59 THEN 1 ELSE 0 END) '50-59',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 60 AND 69 THEN 1 ELSE 0 END) '60-69',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 70 AND 79 THEN 1 ELSE 0 END) '70-79',
+SUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766 BETWEEN 80 AND 89 THEN 1 ELSE 0 END) '80-89',
+sUM (CASE WHEN DATEDIFF(hour,u.ptdob,'2018-06-30')/8766    >=   90        THEN 1 ELSE 0 END) '90+'
 FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-		.			'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
 					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU','GYN-NEW',
 					'RCM-OFF', 'Deaf-fu','Deaf-new','nurse','exch-ex','exch-new'
 					 )
@@ -119,16 +119,16 @@ AND e.deleteflag = '0'
 
 --Unique AGE COUNT
 SELECT 
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 <= 9			  THEN 1 ELSE 0 END)  '0-09',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 10 AND 19 THEN 1 ELSE 0 END) '10-19',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 20 AND 29 THEN 1 ELSE 0 END) '20-29',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 30 AND 39 THEN 1 ELSE 0 END) '30-39',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 40 AND 49 THEN 1 ELSE 0 END) '40-49',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 50 AND 59 THEN 1 ELSE 0 END) '50-59',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 60 AND 69 THEN 1 ELSE 0 END) '60-69',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 70 AND 79 THEN 1 ELSE 0 END) '70-79',
-SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 BETWEEN 80 AND 89 THEN 1 ELSE 0 END) '80-89',
-sUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2017-06-30')/8766 >= 90			  THEN 1 ELSE 0 END) '90+'
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 <= 9			  THEN 1 ELSE 0 END)  '0-09',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 10 AND 19 THEN 1 ELSE 0 END) '10-19',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 20 AND 29 THEN 1 ELSE 0 END) '20-29',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 30 AND 39 THEN 1 ELSE 0 END) '30-39',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 40 AND 49 THEN 1 ELSE 0 END) '40-49',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 50 AND 59 THEN 1 ELSE 0 END) '50-59',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 60 AND 69 THEN 1 ELSE 0 END) '60-69',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 70 AND 79 THEN 1 ELSE 0 END) '70-79',
+SUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 BETWEEN 80 AND 89 THEN 1 ELSE 0 END) '80-89',
+sUM (CASE WHEN DATEDIFF(hour,#temptable1.dob,'2018-06-30')/8766 >= 90			  THEN 1 ELSE 0 END) '90+'
 FROM #temptable1
 
 -- ***********************************  GENDER  *********************************************************************** 
