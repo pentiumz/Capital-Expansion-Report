@@ -5,7 +5,7 @@
 --    ***-----WARNING-- the  staff who came in for flu shots need to be directly ---------***
 --    ***-----WARNING-- excluded, so any new staff will need to be added------------------***
 --    ***-----^Their names are kept in a table somewhere in eCw, but I'm not sure where---***
---    **------(If I have time I'll try and simplify this. Don't need to be doing so)------***
+--    **------(If I have time I'll try and simplify this. Don't need to be doing so...)---***
 --    **------(many pulls directly FROM the DB...)----------------------------------------***
 --    ***************************************************************************************
 
