@@ -29,9 +29,9 @@ if object_id ('tempdb..#tempvision1')         is not null drop table   #tempvisi
 if object_id ('tempdb..#tempdental')          is not null drop table   #tempdental
 if object_id ('tempdb..#tempNEwBH' )          is not null drop table   #tempNEwBH
 if object_id ('tempdb..#tempnewmedical' )     is not null drop table   #tempnewmedical
-if object_id ('tempdb..#tempSSA')			  is not null drop table   #tempSSA
-if object_id ('tempdb..#tempSSA2' )			  is not null drop table   #tempSSA2
-if object_id ('tempdb..#tempSSA3' )			  is not null drop table   #tempSSA3
+if object_id ('tempdb..#tempSSA')             is not null drop table   #tempSSA
+if object_id ('tempdb..#tempSSA2' )           is not null drop table   #tempSSA2
+if object_id ('tempdb..#tempSSA3' )           is not null drop table   #tempSSA3
 if object_id ('tempdb..#tempSSAenc')          is not null drop table   #tempSSAenc
 if object_id ('tempdb..#tempprenatal')	      is not null drop table   #tempprenatal
 
