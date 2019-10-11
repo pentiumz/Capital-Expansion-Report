@@ -119,7 +119,7 @@ SELECT  SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 <= 9			  THEN 1 E
 		SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 BETWEEN 60 AND 69 THEN 1 ELSE 0 END) '60-69',
 		SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 BETWEEN 70 AND 79 THEN 1 ELSE 0 END) '70-79',
 		SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 BETWEEN 80 AND 89 THEN 1 ELSE 0 END) '80-89',
-		sUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 >= 90			  THEN 1 ELSE 0 END) '90+'
+		SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 >= 90			  THEN 1 ELSE 0 END)'90+'
 FROM #temptable1 t1
 
 -- ***********************************  GENDER  *********************************************************************** 
@@ -144,9 +144,9 @@ AND u.ulname <> '%TEST%'
 AND e.deleteflag = '0'
 
 --UNIQUE by GENDER
-SELECT  sum( CASE WHEN   t1.sex ='female'THEN 1 ELSE 0 END) 'Female',
-		sum( CASE WHEN   t1.sex ='male'  THEN 1 ELSE 0 END) 'Male',
-		sum( CASE WHEN ((t1.sex <> 'male') AND (t1.sex <> 'female' ))THEN 1 ELSE 0 END) 'unknown'
+SELECT  SUM( CASE WHEN   t1.sex ='female'THEN 1 ELSE 0 END) 'Female',
+		SUM( CASE WHEN   t1.sex ='male'  THEN 1 ELSE 0 END) 'Male',
+		SUM( CASE WHEN ((t1.sex <> 'male') AND (t1.sex <> 'female' ))THEN 1 ELSE 0 END) 'unknown'
 FROM #temptable1 t1
 
 -- *********************************** RACE ***********************************************************************
@@ -154,14 +154,14 @@ FROM #temptable1 t1
 
 -- The below code will attempt to assign a client INTO the race bucket that they best fit INTO.
 SELECT 
-	SUM(CASE WHEN ((p.race LIKE '%Indian%')  OR (p.race LIKE '%Alaska%'))  THEN 1 ELSE 0 END)  'American Indian/Alaska Native',
-	SUM(CASE WHEN p.race LIKE   '%asian%' THEN 1 ELSE 0 END)									'Asian',
-	SUM(CASE WHEN p.race LIKE   '%black%' THEN 1 ELSE 0 END)									'Black',
-	SUM(CASE WHEN p.race LIKE   '%more%'  THEN 1 ELSE 0 END)									'More than one race',
-	SUM(CASE WHEN ((p.race LIKE '%Pacific%')  OR (p.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)  'Native Hawaiian/ Other Pacific Islander',
-	SUM(CASE WHEN (p.race LIKE  '%Other%' AND p.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END) 'Other Race',
-	SUM(CASE WHEN ((p.race LIKE '%Refuse%') OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') OR (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
-	SUM(CASE WHEN p.race LIKE   '%white%' THEN 1 ELSE 0 END)									'White'
+	    SUM(CASE WHEN ((p.race LIKE '%Indian%')  OR (p.race LIKE '%Alaska%'))  THEN 1 ELSE 0 END)  'American Indian/Alaska Native',
+	    SUM(CASE WHEN p.race LIKE   '%asian%' THEN 1 ELSE 0 END)									'Asian',
+	    SUM(CASE WHEN p.race LIKE   '%black%' THEN 1 ELSE 0 END)									'Black',
+	    SUM(CASE WHEN p.race LIKE   '%more%'  THEN 1 ELSE 0 END)									'More than one race',
+	    SUM(CASE WHEN ((p.race LIKE '%Pacific%')  OR (p.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)  'Native Hawaiian/ Other Pacific Islander',
+	    SUM(CASE WHEN (p.race LIKE  '%Other%' AND p.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END) 'Other Race',
+	    SUM(CASE WHEN ((p.race LIKE '%Refuse%') OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') OR (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
+	    SUM(CASE WHEN p.race LIKE   '%white%' THEN 1 ELSE 0 END)									'White'
 
 FROM patients p, users u, enc e
 WHERE p.pid = u.uid
@@ -284,9 +284,12 @@ SELECT  SUM(CASE WHEN u.zipcode ='20001' THEN 1 ELSE 0 END) '20001',
 		SUM(CASE WHEN u.zipcode ='20910' THEN 1 ELSE 0 END) '20910',
 		SUM(CASE WHEN u.zipcode ='22150' THEN 1 ELSE 0 END) '22150',
 		'' '.',
-		sum( CASE WHEN u.zipcode not in ('20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
-								     '20013','20015','20016','20017','20018','20019','20020','20024','20032','20036','20037','20706',
-								     '20740','20742','20743','20746','20770','20091','20910','22150') THEN 1 ELSE 0 END) 'unknown'
+		SUM( CASE WHEN u.zipcode not in (
+										'20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
+										'20013','20015','20016','20017','20018','20019','20020','20024','20032','20036','20037','20706',
+										'20740','20742','20743','20746','20770','20091','20910','22150'
+										)
+										THEN 1 ELSE 0 END) 'unknown'
 --^this all made my brain melt slightly...
 
 FROM patients p, users u, enc e
@@ -336,7 +339,7 @@ SELECT   SUM( CASE WHEN t1.zipcode ='20001' THEN 1 ELSE 0 END) '20001',
 		 SUM( CASE WHEN t1.zipcode ='20910' THEN 1 ELSE 0 END) '20910',
 		 SUM( CASE WHEN t1.zipcode ='22150' THEN 1 ELSE 0 END) '22150',
 		 '' '.',
-		 sum( CASE WHEN t1.zipcode not in ('20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
+		 SUM( CASE WHEN t1.zipcode not in ('20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
 		 									   '20013','20015','20016','20017','20018','20019','20020','20024','20032','20036','20037','20706',
 		 									   '20740','20742','20743','20746','20770','20091','20910','22150') THEN 1 ELSE 0 END) 'unknown'
 FROM #temptable1 t1
@@ -352,33 +355,33 @@ FROM #temptable1 t1
 -- Also the 'unknown' section will need to be updated to account for any new languages.
 SELECT  SUM( CASE WHEN  p.language LIKE '%Amharic%' THEN 1 ELSE 0 END)'Amharic',
 		SUM( CASE WHEN (p.language LIKE '%Chinese%' 
-					OR p.language LIKE  '%Manda%' 
-					OR p.language LIKE  '%Cantonese%') 
-    				THEN 1 ELSE 0 END)  'Chinese',
+			  OR p.language LIKE  '%Manda%' 
+			  OR p.language LIKE  '%Cantonese%') 
+    			THEN 1 ELSE 0 END)  'Chinese',
 		SUM( CASE WHEN (p.language =    'English' 
-					 OR p.language =    'Eng') 
-    				THEN 1 ELSE 0 END) 'English',
+				 OR p.language =    'Eng') 
+    			THEN 1 ELSE 0 END) 'English',
 		SUM(CASE WHEN p.language LIKE  '%French%' THEN 1 ELSE 0 END) 'French',
 		SUM(CASE WHEN p.language LIKE  '%Kore%' THEN 1 ELSE 0 END)	  'Korean',
 		SUM(CASE WHEN p.language LIKE  '%Other%' THEN 1 ELSE 0 END)  'Other',
 		SUM(CASE WHEN p.language LIKE  '%Spanish%' THEN 1 ELSE 0 END)'Spanish',
 		SUM(CASE WHEN
-		   (
-			 p.language LIKE 'arabic%'     or
-			 p.language LIKE 'deaf'        or
-			 p.language LIKE 'Indian%'     or
-			 p.language LIKE 'Portuguese%' or
-			 p.language LIKE 'Russian%'    or
-			 p.language LIKE '%Sign%'      or
-			 p.language LIKE 'Tagalog%'    or
-			 p.language =    ''            or
-			 p.language LIKE '%Bang%'	   or
-			 p.language like 'German%'	   or
-			 p.language like '%?%'		   or
-			 p.language like '%Swahili%'   or
-			 p.language LIKE 'Tigrigna%'	
-	
-		   )	 THEN 1  ELSE 0 END)    'Unknown' ,
+		         (
+			     p.language LIKE 'arabic%'     or
+			     p.language LIKE 'deaf'        or
+			     p.language LIKE 'Indian%'     or
+			     p.language LIKE 'Portuguese%' or
+			     p.language LIKE 'Russian%'    or
+			     p.language LIKE '%Sign%'      or
+			     p.language LIKE 'Tagalog%'    or
+			     p.language =    ''            or
+			     p.language LIKE '%Bang%'	   or
+			     p.language like 'German%'	   or
+			     p.language like '%?%'		   or
+			     p.language like '%Swahili%'   or
+			     p.language LIKE 'Tigrigna%'	
+		         
+		         ) THEN 1  ELSE 0 END)    'Unknown' ,
 		SUM(CASE WHEN p.language = 'Vietnamese'THEN 1 ELSE 0 END) 'Vietnamese'
 
 FROM patients p, users u, enc e
@@ -399,33 +402,34 @@ AND e.deleteflag = '0'
 
 --unique language
 SELECT 
-	SUM(CASE WHEN  t1.language  LIKE '%Amharic%' THEN 1 ELSE 0 END) 'Amharic',
-	SUM(CASE WHEN (t1.language  LIKE '%Chinese%' OR
-				   t1.language LIKE  '%Manda%'   OR
-				   t1.language LIKE  'Cantonese%') THEN 1 ELSE 0 END) 'Chinese',
-	SUM(CASE WHEN (t1.language  =    'English' OR 
-	t1.language  =    'Eng')        THEN 1 ELSE 0 END) 'English',
-	SUM(CASE WHEN  t1.language  LIKE '%French%'    THEN 1 ELSE 0 END)  'French',
-	SUM(CASE WHEN  t1.language  LIKE '%Kore%'      THEN 1 ELSE 0 END)    'Korean',
-	SUM(CASE WHEN  t1.language  LIKE '%Other%'     THEN 1 ELSE 0 END)   'Other',
-	SUM(CASE WHEN  t1.language  LIKE '%Spanish%'   THEN 1 ELSE 0 END) 'Spanish',
-	SUM(CASE WHEN (t1.language  LIKE '?'		   OR
-				   t1.language  LIKE 'Arabic%'	   OR
-				   t1.language  LIKE 'Deaf%'	   OR
-				   t1.language  LIKE 'Indian%'	   OR
-				   t1.language  LIKE 'Port%'	   OR
-				   t1.language  LIKE 'Russian'	   OR
-				   t1.language  LIKE '%Sign%'	   OR
-				   t1.language  LIKE '%Tagalog%'   OR
-				   t1.language  LIKE '%Bang%'      OR
-				   t1.language  LIKE '%German%'    OR
-				   t1.language  LIKE '%?%'		   OR
-				   t1.language  =    ''			   OR
-				   t1.language  like '%Swahili%'   OR
-				   t1.language  LIKE 'Tigrigna'		
-				   )  
-				   THEN 1  ELSE 0 END)	  'Unknown',
-	SUM (CASE WHEN t1.language =	  'Vietnamese'THEN 1 ELSE 0 END) 'Vietnamese'
+	 SUM(CASE WHEN  t1.language  LIKE '%Amharic%' THEN 1 ELSE 0 END) 'Amharic',
+	 SUM(CASE WHEN (
+	               t1.language  LIKE '%Chinese%' OR
+	 			   t1.language LIKE  '%Manda%'   OR
+	 			   t1.language LIKE  'Cantonese%') THEN 1 ELSE 0 END) 'Chinese',
+	 SUM(CASE WHEN (t1.language  =    'English' OR 
+	 t1.language  =    'Eng')        THEN 1 ELSE 0 END) 'English',
+	 SUM(CASE WHEN  t1.language  LIKE '%French%'    THEN 1 ELSE 0 END)  'French',
+	 SUM(CASE WHEN  t1.language  LIKE '%Kore%'      THEN 1 ELSE 0 END)    'Korean',
+	 SUM(CASE WHEN  t1.language  LIKE '%Other%'     THEN 1 ELSE 0 END)   'Other',
+	 SUM(CASE WHEN  t1.language  LIKE '%Spanish%'   THEN 1 ELSE 0 END) 'Spanish',
+	 SUM(CASE WHEN (t1.language  LIKE '?'		   OR
+	 			   t1.language  LIKE 'Arabic%'	   OR
+	 			   t1.language  LIKE 'Deaf%'	   OR
+	 			   t1.language  LIKE 'Indian%'	   OR
+	 			   t1.language  LIKE 'Port%'	   OR
+	 			   t1.language  LIKE 'Russian'	   OR
+	 			   t1.language  LIKE '%Sign%'	   OR
+	 			   t1.language  LIKE '%Tagalog%'   OR
+	 			   t1.language  LIKE '%Bang%'      OR
+	 			   t1.language  LIKE '%German%'    OR
+	 			   t1.language  LIKE '%?%'		   OR
+	 			   t1.language  =    ''			   OR
+	 			   t1.language  like '%Swahili%'   OR
+	 			   t1.language  LIKE 'Tigrigna'		
+	 			   )  
+	 			   THEN 1  ELSE 0 END)	  'Unknown',
+	 SUM (CASE WHEN t1.language =	  'Vietnamese'THEN 1 ELSE 0 END) 'Vietnamese'
 FROM #temptable1 t1
 
 -- ************************************** INSURANCE  ********************************************************************
@@ -506,22 +510,22 @@ SELECT
 	SUM( CASE WHEN  ti2.insurancename  LIKE '%Medicare%' THEN 1 ELSE 0 END)   'Medicare',
 	SUM( CASE WHEN  ti2.insurancename  LIKE ''			THEN 1 ELSE 0 END)	 'Other Public', -- Not the best way to capture this info. It should probably should this be a manual count
 	SUM( CASE WHEN 
-				(ti2.insurancename LIKE '%private%' 
-			  OR ti2.insurancename LIKE '%Blue Cross%'
-			  OR ti2.insurancename LIKE '%BlueCross%'
-			  OR ti2.insurancename LIKE '%Aetna%'
-			  OR ti2.insurancename LIKE '%Carefirst%'
-			  OR ti2.insurancename LIKE '%Cigna%'
-			  OR ti2.insurancename LIKE '%United Health%'
-			  OR ti2.insurancename LIKE '%UnitedHealthCare%'
-			  OR ti2.insurancename LIKE '%Bravo%'
-			  OR ti2.insurancename LIKE '%Takaful Insurance Co%'
-			  OR ti2.insurancename LIKE '%Central United Life Insurance%'
-			  OR ti2.insurancename LIKE '%Kaiser%'
-			  OR ti2.insurancename LIKE '%AMERIGROUP-DC ICP%'
-			  OR ti2.insuranceName LIKE '%DC AMERIHEALTH ICP%'
-			  OR ti2.insuranceName LIKE '%UHC EVERCARE%'
-			  )
+			       (ti2.insurancename LIKE '%private%' 
+			     OR ti2.insurancename LIKE '%Blue Cross%'
+			     OR ti2.insurancename LIKE '%BlueCross%'
+			     OR ti2.insurancename LIKE '%Aetna%'
+			     OR ti2.insurancename LIKE '%Carefirst%'
+			     OR ti2.insurancename LIKE '%Cigna%'
+			     OR ti2.insurancename LIKE '%United Health%'
+			     OR ti2.insurancename LIKE '%UnitedHealthCare%'
+			     OR ti2.insurancename LIKE '%Bravo%'
+			     OR ti2.insurancename LIKE '%Takaful Insurance Co%'
+			     OR ti2.insurancename LIKE '%Central United Life Insurance%'
+			     OR ti2.insurancename LIKE '%Kaiser%'
+			     OR ti2.insurancename LIKE '%AMERIGROUP-DC ICP%'
+			     OR ti2.insuranceName LIKE '%DC AMERIHEALTH ICP%'
+			     OR ti2.insuranceName LIKE '%UHC EVERCARE%'
+			     )
 			  THEN 1 ELSE 0 END)  'Private',
 	SUM( CASE WHEN (ti2.insurancename LIKE '%Uninsure%' OR ti2.insurancename LIKE 'DC Fund')  THEN 1 ELSE 0 END)  'Uninsured',
 	SUM( case  when ti2.insurancename LIKE '%Sliding%' THEN 1 ELSE 0 END)	'Sliding Fee',
@@ -754,21 +758,20 @@ FROM #tempnewmedical tnm
 select count(distinct e.encounterid) 'Encounters from New Pts'
 from enc e, patients p
 inner join -- Inner join to make a list of new patients' pid's then find matches against new list of clients ------------------------------------------------------------------------------------------
-	( SELECT 
-		p.pid, 
-		e.date, 
-		e.encounterID
-
-	  FROM users u, patients p, ENC E
-
-	  WHERE p.pid = u.uid
-		AND  e.patientid = p.pid 
-		AND (e.visittype LIKE 'ADULT-NEW' OR e.visittype LIKE 'PED-PRENAT-NEW')
-		AND  e.date BETWEEN @start_date AND @end_date
-		AND  e.status = 'CHK'
-		AND  u.ulname <> '%TEST%'
-		AND  e.deleteflag = '0'
-	) npe on p.pid=npe.pid and p.pid=npe.pid
+				    (
+					SELECT 
+				    p.pid, 
+				    e.date, 
+				    e.encounterID
+				    FROM users u, patients p, ENC E
+				    WHERE p.pid = u.uid
+				    AND  e.patientid = p.pid 
+				    AND (e.visittype LIKE 'ADULT-NEW' OR e.visittype LIKE 'PED-PRENAT-NEW')
+				    AND  e.date BETWEEN @start_date AND @end_date
+				    AND  e.status = 'CHK'
+				    AND  u.ulname <> '%TEST%'
+				    AND  e.deleteflag = '0'
+				    ) npe on p.pid=npe.pid and p.pid=npe.pid
 
 where p.pid = e.patientid
 and e.date between @start_date and @end_date
