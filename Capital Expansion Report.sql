@@ -160,7 +160,7 @@ SELECT
 	SUM(CASE WHEN p.race LIKE   '%more%'  THEN 1 ELSE 0 END)									'More than one race',
 	SUM(CASE WHEN ((p.race LIKE '%Pacific%')  OR (p.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)  'Native Hawaiian/ Other Pacific Islander',
 	SUM(CASE WHEN (p.race LIKE  '%Other%' AND p.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END) 'Other Race',
-	SUM(CASE WHEN ((p.race LIKE '%Refuse%') OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') or (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
+	SUM(CASE WHEN ((p.race LIKE '%Refuse%') OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') OR (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
 	SUM(CASE WHEN p.race LIKE   '%white%' THEN 1 ELSE 0 END)									'White'
 
 FROM patients p, users u, enc e
@@ -183,7 +183,7 @@ SELECT  SUM( CASE WHEN ((t1.race LIKE '%Indian%')  OR (t1.race LIKE '%Alaska%'))
 		SUM( CASE WHEN   t1.race LIKE '%more%'  THEN 1 ELSE 0 END)												'More than one race',
 		SUM( CASE WHEN ((t1.race LIKE '%Pacific%')  OR (t1.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)  'Native Hawaiian/ Other Pacific Islander',
 		SUM( CASE WHEN  (t1.race LIKE '%Other%' AND     t1.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END)  'Other Race',
-		SUM( CASE WHEN ((t1.race LIKE '%Refuse%') OR (  t1.race LIKE '%unknown%') OR (t1.race like '%declined%') or (t1.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
+		SUM( CASE WHEN ((t1.race LIKE '%Refuse%') OR (  t1.race LIKE '%unknown%') OR (t1.race like '%declined%') OR (t1.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
 		SUM( CASE WHEN   t1.race LIKE '%white%' THEN 1 ELSE 0 END)												'White'
 FROM #temptable1 t1
 
@@ -193,7 +193,7 @@ FROM #temptable1 t1
 -- The below code will assign a client INTO, whichever ethnicity bucket they fall INTO.
 SELECT  SUM(CASE WHEN p.ethnicity= '2135-2' THEN 1 ELSE 0 END) 'Hispanic OR Latino',
 		SUM(CASE WHEN p.ethnicity= '2186-5' THEN 1 ELSE 0 END) 'Non Hispanic',
-		SUM(CASE WHEN (p.ethnicity= '2145-2') or (p.ethnicity = 'ASKU') or (p.ethnicity = '') THEN 1 ELSE 0 END) 'Unknown'
+		SUM(CASE WHEN (p.ethnicity= '2145-2') OR (p.ethnicity = 'ASKU') OR (p.ethnicity = '') THEN 1 ELSE 0 END) 'Unknown'
 
 FROM patients p, users u, enc e
 
@@ -401,29 +401,30 @@ AND e.deleteflag = '0'
 SELECT 
 	SUM(CASE WHEN  t1.language  LIKE '%Amharic%' THEN 1 ELSE 0 END) 'Amharic',
 	SUM(CASE WHEN (t1.language  LIKE '%Chinese%' OR
-				   t1.language LIKE '%Manda%' Or
-				   t1.language LIKE 'Cantonese%') THEN 1 ELSE 0 END) 'Chinese',
-	SUM(CASE WHEN (t1.language =     'English' OR
-				   t1.language =    'Eng') THEN 1 ELSE 0 END) 'English',
-	SUM(CASE WHEN  t1.language  LIKE '%French%' THEN 1 ELSE 0 END)  'French',
-	SUM(CASE WHEN  t1.language  LIKE '%Kore%' THEN 1 ELSE 0 END)    'Korean',
-	SUM(CASE WHEN  t1.language  LIKE '%Other%' THEN 1 ELSE 0 END)   'Other',
-	SUM(CASE WHEN  t1.language  LIKE '%Spanish%' THEN 1 ELSE 0 END) 'Spanish',
-	SUM(CASE WHEN (t1.language  LIKE '?'			OR
-				   t1.language LIKE 'Arabic%'		OR
-				   t1.language LIKE 'Deaf%'		OR
-				   t1.language LIKE 'Indian%'		OR
-				   t1.language LIKE 'Port%'		OR
-				   t1.language LIKE 'Russian'		OR
-				   t1.language LIKE '%Sign%'		OR
-				   t1.language LIKE '%Tagalog%'   OR
-				   t1.language LIKE '%Bang%'      OR
-				   t1.language LIKE '%German%'    OR
-				   t1.language LIKE '%?%'			OR
-				   t1.language = ''			    OR
-				   t1.language like '%Swahili%'   OR
-				   t1.language LIKE 'Tigrigna'		
-					)  THEN 1  ELSE 0 END)	  'Unknown',
+				   t1.language LIKE  '%Manda%'   OR
+				   t1.language LIKE  'Cantonese%') THEN 1 ELSE 0 END) 'Chinese',
+	SUM(CASE WHEN (t1.language  =    'English' OR 
+	t1.language  =    'Eng')        THEN 1 ELSE 0 END) 'English',
+	SUM(CASE WHEN  t1.language  LIKE '%French%'    THEN 1 ELSE 0 END)  'French',
+	SUM(CASE WHEN  t1.language  LIKE '%Kore%'      THEN 1 ELSE 0 END)    'Korean',
+	SUM(CASE WHEN  t1.language  LIKE '%Other%'     THEN 1 ELSE 0 END)   'Other',
+	SUM(CASE WHEN  t1.language  LIKE '%Spanish%'   THEN 1 ELSE 0 END) 'Spanish',
+	SUM(CASE WHEN (t1.language  LIKE '?'		   OR
+				   t1.language  LIKE 'Arabic%'	   OR
+				   t1.language  LIKE 'Deaf%'	   OR
+				   t1.language  LIKE 'Indian%'	   OR
+				   t1.language  LIKE 'Port%'	   OR
+				   t1.language  LIKE 'Russian'	   OR
+				   t1.language  LIKE '%Sign%'	   OR
+				   t1.language  LIKE '%Tagalog%'   OR
+				   t1.language  LIKE '%Bang%'      OR
+				   t1.language  LIKE '%German%'    OR
+				   t1.language  LIKE '%?%'		   OR
+				   t1.language  =    ''			   OR
+				   t1.language  like '%Swahili%'   OR
+				   t1.language  LIKE 'Tigrigna'		
+				   )  
+				   THEN 1  ELSE 0 END)	  'Unknown',
 	SUM (CASE WHEN t1.language =	  'Vietnamese'THEN 1 ELSE 0 END) 'Vietnamese'
 FROM #temptable1 t1
 
@@ -448,12 +449,13 @@ and	   #tempinsurance3.seqno is not null
 -- del SELECT * FROM #tempinsurance4
 SELECT 
 	SUM( CASE WHEN ti4.insurancename  LIKE '%alliance%' THEN 1 ELSE 0 END)   'Alliance',
-	SUM( CASE WHEN (ti4.insurancename LIKE '%medicaid%' or 
+	SUM( CASE WHEN (ti4.insurancename LIKE '%medicaid%' OR 
 					ti4.insuranceName like 'DC Wrap' or
 					ti4.insurancename LIKE '%spec needs%' or
-					ti4.insurancename LIKE '%AMERIGROUP-DC ICP%'  or
-					ti4.insuranceName LIKE '%DC AMERIHEALTH ICP%' or
-					ti4.insuranceName like 'HEALTH SERVICES FOR CHILDREN') THEN 1 ELSE 0 END)   'Medicaid',
+					ti4.insurancename LIKE '%AMERIGROUP-DC ICP%'  OR  /* Immigrant Child Program (ICP) */
+					ti4.insuranceName LIKE '%DC AMERIHEALTH ICP%' OR  /* It's still Medicaid */
+					ti4.insuranceName like 'HEALTH SERVICES FOR CHILDREN') 
+					THEN 1 ELSE 0 END) 'Medicaid',
 	SUM( CASE WHEN  ti4.insurancename LIKE '%medicare%' THEN 1 ELSE 0 END)   'Medicare',
 	SUM( CASE WHEN  ti4.insurancename LIKE ''			THEN 1 ELSE 0 END)	 'Other Public', -- Not the best way to capture this info. It should probably should this be a manual count
 	SUM( CASE WHEN 
@@ -471,7 +473,7 @@ SELECT
 			     OR ti4.insurancename LIKE '%Kaiser%'
 			     OR ti4.insuranceName LIKE '%UHC EVERCARE%'
 			     )
-				THEN 1 ELSE 0 END)  'Private',
+				 THEN 1 ELSE 0 END)  'Private',
 	SUM( CASE WHEN (ti4.insurancename LIKE '%uninsure%' OR ti4.insurancename LIKE 'DC Fund')  THEN 1 ELSE 0 END)  'Uninsured',
 	SUM( case  when ti4.insurancename LIKE '%Sliding%' THEN 1 ELSE 0 END)	'Sliding Fee',
 	SUM( case  when ti4.insurancename LIKE '%income%'  THEN 1 ELSE 0 END)	'Unknown'
@@ -494,10 +496,13 @@ WHERE #tempinsurance.insOrder is not null
 
 SELECT  
 	SUM( CASE WHEN  ti2.insurancename  LIKE '%Alliance%' THEN 1 ELSE 0 END)   'Alliance',
-	SUM( CASE WHEN (ti2.insurancename LIKE '%Medicaid%' or 
+	SUM( CASE WHEN (ti2.insurancename LIKE '%Medicaid%' OR 
 					ti2.insuranceName like 'DC Wrap' or
 					ti2.insurancename LIKE '%spec needs%' or
-					ti2.insuranceName like 'HEALTH SERVICES FOR CHILDREN') THEN 1 ELSE 0 END)   'Medicaid',
+					ti2.insurancename LIKE '%AMERIGROUP-DC ICP%'  OR  /* Immigrant Child Program (ICP) */
+					ti2.insuranceName LIKE '%DC AMERIHEALTH ICP%' OR  /* It's still Medicaid */
+					ti2.insuranceName like 'HEALTH SERVICES FOR CHILDREN') 
+					THEN 1 ELSE 0 END)   'Medicaid',
 	SUM( CASE WHEN  ti2.insurancename  LIKE '%Medicare%' THEN 1 ELSE 0 END)   'Medicare',
 	SUM( CASE WHEN  ti2.insurancename  LIKE ''			THEN 1 ELSE 0 END)	 'Other Public', -- Not the best way to capture this info. It should probably should this be a manual count
 	SUM( CASE WHEN 
@@ -516,7 +521,8 @@ SELECT
 			  OR ti2.insurancename LIKE '%AMERIGROUP-DC ICP%'
 			  OR ti2.insuranceName LIKE '%DC AMERIHEALTH ICP%'
 			  OR ti2.insuranceName LIKE '%UHC EVERCARE%'
-			  )													   THEN 1 ELSE 0 END)  'Private',
+			  )
+			  THEN 1 ELSE 0 END)  'Private',
 	SUM( CASE WHEN (ti2.insurancename LIKE '%Uninsure%' OR ti2.insurancename LIKE 'DC Fund')  THEN 1 ELSE 0 END)  'Uninsured',
 	SUM( case  when ti2.insurancename LIKE '%Sliding%' THEN 1 ELSE 0 END)	'Sliding Fee',
 	SUM( case  when ti2.insurancename LIKE '%income%'  THEN 1 ELSE 0 END)	'Unknown'
@@ -531,7 +537,7 @@ FROM #tempinsurance2 ti2
 
 -- ************************************** #TempSSA Creation ********************************************************
 SELECT 
-	t3.pid, 
+	t3.pid,
 	ssa.PovertyLevel, 
 	ssa.AssignedDate
 
@@ -923,12 +929,10 @@ AND e.deleteflag = '0'
 -- ************************************ Set Visit Types (pipe dream)************************************************
 -- A bit of memory/space could be saved if there was a way to store visittype's in an array that gets called with a declare statement.
 -- I have no idea how to do this...if it's possible...
-
-/*
-Declare @visittypes table (Id varchar(200))
-Insert  into @visittypes(Id) values ('adult-fu')/*,('adult-new'),('adult-pe'),('adult-urg'),('confidentl'),('ped-prenata'),('ped-prenat'),
-							    	('ped-prenat-new'),('peds-fu'),('peds-pe'),('peds-urg'),('asylum'),('gyn-fu'),('gyn-new'),
-							    	('RCM-OFF'),('Deaf-FU'),('Deaf-New'),('nurse'),('exch-ex'),('exch-new')   
-	*/
-select * from @visittypes
-*/
+-- 
+-- 
+-- Declare @visittypes table (Id varchar(200))
+-- Insert  into @visittypes(Id) values ('adult-fu')/*,('adult-new'),('adult-pe'),('adult-urg'),('confidentl'),('ped-prenata'),('ped-prenat'),
+-- 							    	('ped-prenat-new'),('peds-fu'),('peds-pe'),('peds-urg'),('asylum'),('gyn-fu'),('gyn-new'),
+-- 							    	('RCM-OFF'),('Deaf-FU'),('Deaf-New'),('nurse'),('exch-ex'),('exch-new')   
+-- 
