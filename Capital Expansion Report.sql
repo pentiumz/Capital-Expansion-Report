@@ -1,17 +1,17 @@
 
---    ***************************************************************************************
---    ***-----This generates the data required for for the DC Capital Expansion Report----***
---    ***-----Most of these are broken up into encounters/visits & then unique patients---***
---    ***-----Some code will need to be rewritten in someplaces (Age/Lang/Race/insur)-----***
---    ***---------------------------------------------------------------------------------***
---    ***-----WARNING-- the  staff who came in for flu shots need to be directly ---------***
---    ***-----WARNING-- Insurance section needs to be mannually updated ------------------***
---    ***-----WARNING-- excluded, so any new staff will need to be added------------------***
---    ***-----^Their names are kept in a table somewhere in eCw, but I'm not sure where---***
---    ***---------------------------------------------------------------------------------***
---    ***-----If I have time I'll try and simplify this. Don't need to be doing so--------***
---    ***-----many pulls directly FROM the DB. All we need here is more Temps...----------***
---    ***************************************************************************************
+--    ****************************************************************************************
+--    ***----- This generates the data required for for the DC Capital Expansion Report ---***
+--    ***----- Most of these are broken up into encounters/visits & then unique patients --***
+--    ***----- Some code will need to be rewritten in someplaces (Age/Lang/Race/insur) ----***
+--    ***----------------------------------------------------------------------------------***
+--    ***----- WARNING-- the  staff who came in for flu shots need to be directly ---------***
+--    ***----- WARNING-- Insurance section needs to be mannually updated ------------------***
+--    ***----- WARNING-- excluded, so any new staff will need to be added -----------------***
+--    ***----- ^Their names are kept in a table somewhere in eCw, but I'm not sure where --***
+--    ***----------------------------------------------------------------------------------***
+--    ***----- If I have time I'll try and simplify this. Don't need to be doing so -------***
+--    ***----- many pulls directly FROM the DB. All we need here is more Temps... ---------***
+--    ****************************************************************************************
 
 -- ************************************ Create Temps *********************************************************
 if object_id ('tempdb..#tempnew')             is not null drop table   #tempnew
@@ -21,7 +21,7 @@ if object_id ('tempdb..#tempSSA3')            is not null drop table   #tempSSA3
 if object_id ('tempdb..#tempSSA2')            is not null drop table   #tempSSA2
 if object_id ('tempdb..#tempNEwBH' )          is not null drop table   #tempNEwBH
 if object_id ('tempdb..#temptable1')          is not null drop table   #temptable1
-if object_id ('tempdb..#temptable3')          is not null drop table   #temptable3
+if object_id ('tempdb..#temptable2')          is not null drop table   #temptable2
 if object_id ('tempdb..#tempSSAenc')          is not null drop table   #tempSSAenc
 if object_id ('tempdb..#tempdental')          is not null drop table   #tempdental
 if object_id ('tempdb..#tempnewenc')          is not null drop table   #tempnewenc
@@ -47,8 +47,10 @@ set  @end_date   =  '2019-09-30'
 -- ************************************* Temp Tables *********************************************************
 /* Temptables:
 #temptable1: Unique Patients
-#temptable3: Encounters
+#temptable2: Encounters
 */
+
+
 
 -- THE #TEMPTABLE1 (UNIQUE PATIENTS)
 SELECT DISTINCT  p.pid, u.dob, u.sex, p.race, u.zipcode, p.language, p.ethnicity, u.upcity
@@ -57,9 +59,10 @@ FROM enc e, users u, patients p
 WHERE p.pid = u.uid
 AND e.patientid = p.pid
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW','MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -67,16 +70,17 @@ AND u.ulname <> '%TEST%'
 AND e.deleteflag = '0'
 
 --THE OTHER TEMP TABLE (ENCOUNTERS)
-SELECT p.pid, u.dob, u.sex, p.race, u.zipcode, p.language,	p.ethnicity, u.upcity
+SELECT p.pid, u.dob, u.sex, p.race, u.zipcode, p.language,	p.ethnicity, u.upcity, e.visittype, e.date
 -- No Distinct^
-INTO #temptable3 
+INTO #temptable2 
 FROM enc e, users u, patients p
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -100,9 +104,10 @@ FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -123,6 +128,7 @@ SELECT  SUM (CASE WHEN DATEDIFF(hour,t1.dob,'2019-06-30')/8766 <= 9			  THEN 1 E
 FROM #temptable1 t1
 
 -- ***********************************  GENDER  *********************************************************************** 
+
 --ENC by GENDER 
 -- The below code will assign a 1 to whichever gender a client falls INTO. If a client fall INTO neither binary category
 -- they're put INTO the 'unknown' category. This is the categorization provided by the report recipients.
@@ -134,9 +140,10 @@ FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -166,11 +173,12 @@ SELECT
 FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 		AND	e.patientid = p.pid 
-		and	e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
-							)
+		AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GYN-FU', 'GYN-NEW', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
+					)
 		AND e.date BETWEEN @start_date AND @end_date
 		AND e.status = 'CHK'
 		AND u.ulname <> '%TEST%'
@@ -188,9 +196,9 @@ SELECT  SUM( CASE WHEN ((t1.race LIKE '%Indian%')  OR (t1.race LIKE '%Alaska%'))
 FROM #temptable1 t1
 
 -- *********************************** ETHNICITY  ******************************************************************
---enc ethnicity wooh 
+--enc ethnicity (wooh!) 
 
--- The below code will assign a client INTO, whichever ethnicity bucket they fall INTO.
+-- The below code will assign a client into, whichever ethnicity bucket they fall into.
 SELECT  SUM(CASE WHEN p.ethnicity= '2135-2' THEN 1 ELSE 0 END) 'Hispanic OR Latino',
 		SUM(CASE WHEN p.ethnicity= '2186-5' THEN 1 ELSE 0 END) 'Non Hispanic',
 		SUM(CASE WHEN (p.ethnicity= '2145-2') OR (p.ethnicity = 'ASKU') OR (p.ethnicity = '') THEN 1 ELSE 0 END) 'Unknown'
@@ -200,10 +208,11 @@ FROM patients p, users u, enc e
 WHERE 
 	p.pid = u.uid
 AND e.patientid = p.pid 
-AND e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -230,11 +239,12 @@ FROM patients p, users u, enc e
 
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
-AND e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
-				   )
+AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
+					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
@@ -251,54 +261,59 @@ FROM #temptable1
 -- The below code will assign a 1 to clients based on which zipcode they fall into. If a client's zip does not fall into one of the
 -- the buckets, that client is added to 'unknown'.
 -- ProTip: Paste --> Transpose(t) (switches pasted data from left/right to up/down
-SELECT  SUM(CASE WHEN u.zipcode ='20001' THEN 1 ELSE 0 END) '20001',
-		SUM(CASE WHEN u.zipcode ='20000' THEN 1 ELSE 0 END) '20000',
-		SUM(CASE WHEN u.zipcode ='20002' THEN 1 ELSE 0 END) '20002',
-		SUM(CASE WHEN u.zipcode ='20003' THEN 1 ELSE 0 END) '20003',
-		SUM(CASE WHEN u.zipcode ='20004' THEN 1 ELSE 0 END) '20004',
-		SUM(CASE WHEN u.zipcode ='20005' THEN 1 ELSE 0 END) '20005',
-		SUM(CASE WHEN u.zipcode ='20007' THEN 1 ELSE 0 END) '20007',
-		SUM(CASE WHEN u.zipcode ='20008' THEN 1 ELSE 0 END) '20008',
-		SUM(CASE WHEN u.zipcode ='20009' THEN 1 ELSE 0 END) '20009',
-		SUM(CASE WHEN u.zipcode ='20010' THEN 1 ELSE 0 END) '20010',
-		SUM(CASE WHEN u.zipcode ='20011' THEN 1 ELSE 0 END) '20011',
-		SUM(CASE WHEN u.zipcode ='20012' THEN 1 ELSE 0 END) '20012',
-		SUM(CASE WHEN u.zipcode ='20013' THEN 1 ELSE 0 END) '20013',
-		SUM(CASE WHEN u.zipcode ='20015' THEN 1 ELSE 0 END) '20015',
-		SUM(CASE WHEN u.zipcode ='20016' THEN 1 ELSE 0 END) '20016',
-		SUM(CASE WHEN u.zipcode ='20017' THEN 1 ELSE 0 END) '20017',
-		SUM(CASE WHEN u.zipcode ='20018' THEN 1 ELSE 0 END) '20018',
-		SUM(CASE WHEN u.zipcode ='20019' THEN 1 ELSE 0 END) '20019',
-		SUM(CASE WHEN u.zipcode ='20020' THEN 1 ELSE 0 END) '20020',
-		SUM(CASE WHEN u.zipcode ='20024' THEN 1 ELSE 0 END) '20024',
-		SUM(CASE WHEN u.zipcode ='20032' THEN 1 ELSE 0 END) '20032',
-		SUM(CASE WHEN u.zipcode ='20036' THEN 1 ELSE 0 END) '20036',
-		SUM(CASE WHEN u.zipcode ='20037' THEN 1 ELSE 0 END) '20037',
-		SUM(CASE WHEN u.zipcode ='20706' THEN 1 ELSE 0 END) '20706',
-		SUM(CASE WHEN u.zipcode ='20740' THEN 1 ELSE 0 END) '20740',
-		SUM(CASE WHEN u.zipcode ='20742' THEN 1 ELSE 0 END) '20742',
-		SUM(CASE WHEN u.zipcode ='20743' THEN 1 ELSE 0 END) '20743',
-		SUM(CASE WHEN u.zipcode ='20746' THEN 1 ELSE 0 END) '20746',
-		SUM(CASE WHEN u.zipcode ='20770' THEN 1 ELSE 0 END) '20770',
-		SUM(CASE WHEN u.zipcode ='20091' THEN 1 ELSE 0 END) '20091',
-		SUM(CASE WHEN u.zipcode ='20910' THEN 1 ELSE 0 END) '20910',
-		SUM(CASE WHEN u.zipcode ='22150' THEN 1 ELSE 0 END) '22150',
-		'' '.',
+SELECT  SUM(CASE WHEN u.zipcode like '20001%' THEN 1 ELSE 0 END) '20001',
+		SUM(CASE WHEN u.zipcode like '20000%' THEN 1 ELSE 0 END) '20000',
+		SUM(CASE WHEN u.zipcode like '20002%' THEN 1 ELSE 0 END) '20002',
+		SUM(CASE WHEN u.zipcode like '20003%' THEN 1 ELSE 0 END) '20003',
+		SUM(CASE WHEN u.zipcode like '20004%' THEN 1 ELSE 0 END) '20004',
+		SUM(CASE WHEN u.zipcode like '20005%' THEN 1 ELSE 0 END) '20005',
+		SUM(CASE WHEN u.zipcode like '20007%' THEN 1 ELSE 0 END) '20007',
+		SUM(CASE WHEN u.zipcode like '20008%' THEN 1 ELSE 0 END) '20008',
+		SUM(CASE WHEN u.zipcode like '20009%' THEN 1 ELSE 0 END) '20009',
+		SUM(CASE WHEN u.zipcode like '20010%' THEN 1 ELSE 0 END) '20010',
+		SUM(CASE WHEN u.zipcode like '20011%' THEN 1 ELSE 0 END) '20011',
+		SUM(CASE WHEN u.zipcode like '20012%' THEN 1 ELSE 0 END) '20012',
+		SUM(CASE WHEN u.zipcode like '20013%' THEN 1 ELSE 0 END) '20013',
+		SUM(CASE WHEN u.zipcode like '20015%' THEN 1 ELSE 0 END) '20015',
+		SUM(CASE WHEN u.zipcode like '20016%' THEN 1 ELSE 0 END) '20016',
+		SUM(CASE WHEN u.zipcode like '20017%' THEN 1 ELSE 0 END) '20017',
+		SUM(CASE WHEN u.zipcode like '20018%' THEN 1 ELSE 0 END) '20018',
+		SUM(CASE WHEN u.zipcode like '20019%' THEN 1 ELSE 0 END) '20019',
+		SUM(CASE WHEN u.zipcode like '20020%' THEN 1 ELSE 0 END) '20020',
+		SUM(CASE WHEN u.zipcode like '20024%' THEN 1 ELSE 0 END) '20024',
+		SUM(CASE WHEN u.zipcode like '20032%' THEN 1 ELSE 0 END) '20032',
+		SUM(CASE WHEN u.zipcode like '20036%' THEN 1 ELSE 0 END) '20036',
+		SUM(CASE WHEN u.zipcode like '20037%' THEN 1 ELSE 0 END) '20037',
+		SUM(CASE WHEN u.zipcode like '20706%' THEN 1 ELSE 0 END) '20706',
+		SUM(CASE WHEN u.zipcode like '20740%' THEN 1 ELSE 0 END) '20740',
+		SUM(CASE WHEN u.zipcode like '20742%' THEN 1 ELSE 0 END) '20742',
+		SUM(CASE WHEN u.zipcode like '20743%' THEN 1 ELSE 0 END) '20743',
+		SUM(CASE WHEN u.zipcode like '20746%' THEN 1 ELSE 0 END) '20746',
+		SUM(CASE WHEN u.zipcode like '20770%' THEN 1 ELSE 0 END) '20770',
+		SUM(CASE WHEN u.zipcode like '20091%' THEN 1 ELSE 0 END) '20091',
+		SUM(CASE WHEN u.zipcode like '20910%' THEN 1 ELSE 0 END) '20910',
+		SUM(CASE WHEN u.zipcode like '22150%' THEN 1 ELSE 0 END) '22150',
+		'' '.'
+		/*
+		,
 		SUM( CASE WHEN u.zipcode not in (
 										'20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
 										'20013','20015','20016','20017','20018','20019','20020','20024','20032','20036','20037','20706',
 										'20740','20742','20743','20746','20770','20091','20910','22150'
 										)
 										THEN 1 ELSE 0 END) 'unknown'
---^this all made my brain melt slightly...
+		*/
+-- Since the eCw change that automatically will sometimes add in the extra digits for zipcode the unknown section
+-- became a lot of work to calculate in SQL, so just manually find that number. -ns
 
 FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
-AND e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -306,42 +321,45 @@ AND u.ulname <> '%TEST%'
 AND e.deleteflag = '0'
 
 --unique Zipcode
-SELECT   SUM( CASE WHEN t1.zipcode ='20001' THEN 1 ELSE 0 END) '20001',
-		 SUM( CASE WHEN t1.zipcode ='20000' THEN 1 ELSE 0 END) '20000',
-		 SUM( CASE WHEN t1.zipcode ='20002' THEN 1 ELSE 0 END) '20002',
-		 SUM( CASE WHEN t1.zipcode ='20003' THEN 1 ELSE 0 END) '20003',
-		 SUM( CASE WHEN t1.zipcode ='20004' THEN 1 ELSE 0 END) '20004',
-		 SUM( CASE WHEN t1.zipcode ='20005' THEN 1 ELSE 0 END) '20005',
-		 SUM( CASE WHEN t1.zipcode ='20007' THEN 1 ELSE 0 END) '20007',
-		 SUM( CASE WHEN t1.zipcode ='20008' THEN 1 ELSE 0 END) '20008',
-		 SUM( CASE WHEN t1.zipcode ='20009' THEN 1 ELSE 0 END) '20009',
-		 SUM( CASE WHEN t1.zipcode ='20010' THEN 1 ELSE 0 END) '20010',
-		 SUM( CASE WHEN t1.zipcode ='20011' THEN 1 ELSE 0 END) '20011',
-		 SUM( CASE WHEN t1.zipcode ='20012' THEN 1 ELSE 0 END) '20012',
-		 SUM( CASE WHEN t1.zipcode ='20013' THEN 1 ELSE 0 END) '20013',
-		 SUM( CASE WHEN t1.zipcode ='20015' THEN 1 ELSE 0 END) '20015',
-		 SUM( CASE WHEN t1.zipcode ='20016' THEN 1 ELSE 0 END) '20016',
-		 SUM( CASE WHEN t1.zipcode ='20017' THEN 1 ELSE 0 END) '20017',
-		 SUM( CASE WHEN t1.zipcode ='20018' THEN 1 ELSE 0 END) '20018',
-		 SUM( CASE WHEN t1.zipcode ='20019' THEN 1 ELSE 0 END) '20019',
-		 SUM( CASE WHEN t1.zipcode ='20020' THEN 1 ELSE 0 END) '20020',
-		 SUM( CASE WHEN t1.zipcode ='20024' THEN 1 ELSE 0 END) '20024',
-		 SUM( CASE WHEN t1.zipcode ='20032' THEN 1 ELSE 0 END) '20032',
-		 SUM( CASE WHEN t1.zipcode ='20036' THEN 1 ELSE 0 END) '20036',
-		 SUM( CASE WHEN t1.zipcode ='20037' THEN 1 ELSE 0 END) '20037',
-		 SUM( CASE WHEN t1.zipcode ='20706' THEN 1 ELSE 0 END) '20706',
-		 SUM( CASE WHEN t1.zipcode ='20740' THEN 1 ELSE 0 END) '20740',
-		 SUM( CASE WHEN t1.zipcode ='20742' THEN 1 ELSE 0 END) '20742',
-		 SUM( CASE WHEN t1.zipcode ='20743' THEN 1 ELSE 0 END) '20743',
-		 SUM( CASE WHEN t1.zipcode ='20746' THEN 1 ELSE 0 END) '20746',
-		 SUM( CASE WHEN t1.zipcode ='20770' THEN 1 ELSE 0 END) '20770',
-		 SUM( CASE WHEN t1.zipcode ='20091' THEN 1 ELSE 0 END) '20091',
-		 SUM( CASE WHEN t1.zipcode ='20910' THEN 1 ELSE 0 END) '20910',
-		 SUM( CASE WHEN t1.zipcode ='22150' THEN 1 ELSE 0 END) '22150',
-		 '' '.',
+SELECT   SUM( CASE WHEN t1.zipcode like '20001%' THEN 1 ELSE 0 END) '20001',
+		 SUM( CASE WHEN t1.zipcode like '20000%' THEN 1 ELSE 0 END) '20000',
+		 SUM( CASE WHEN t1.zipcode like '20002%' THEN 1 ELSE 0 END) '20002',
+		 SUM( CASE WHEN t1.zipcode like '20003%' THEN 1 ELSE 0 END) '20003',
+		 SUM( CASE WHEN t1.zipcode like '20004%' THEN 1 ELSE 0 END) '20004',
+		 SUM( CASE WHEN t1.zipcode like '20005%' THEN 1 ELSE 0 END) '20005',
+		 SUM( CASE WHEN t1.zipcode like '20007%' THEN 1 ELSE 0 END) '20007',
+		 SUM( CASE WHEN t1.zipcode like '20008%' THEN 1 ELSE 0 END) '20008',
+		 SUM( CASE WHEN t1.zipcode like '20009%' THEN 1 ELSE 0 END) '20009',
+		 SUM( CASE WHEN t1.zipcode like '20010%' THEN 1 ELSE 0 END) '20010',
+		 SUM( CASE WHEN t1.zipcode like '20011%' THEN 1 ELSE 0 END) '20011',
+		 SUM( CASE WHEN t1.zipcode like '20012%' THEN 1 ELSE 0 END) '20012',
+		 SUM( CASE WHEN t1.zipcode like '20013%' THEN 1 ELSE 0 END) '20013',
+		 SUM( CASE WHEN t1.zipcode like '20015%' THEN 1 ELSE 0 END) '20015',
+		 SUM( CASE WHEN t1.zipcode like '20016%' THEN 1 ELSE 0 END) '20016',
+		 SUM( CASE WHEN t1.zipcode like '20017%' THEN 1 ELSE 0 END) '20017',
+		 SUM( CASE WHEN t1.zipcode like '20018%' THEN 1 ELSE 0 END) '20018',
+		 SUM( CASE WHEN t1.zipcode like '20019%' THEN 1 ELSE 0 END) '20019',
+		 SUM( CASE WHEN t1.zipcode like '20020%' THEN 1 ELSE 0 END) '20020',
+		 SUM( CASE WHEN t1.zipcode like '20024%' THEN 1 ELSE 0 END) '20024',
+		 SUM( CASE WHEN t1.zipcode like '20032%' THEN 1 ELSE 0 END) '20032',
+		 SUM( CASE WHEN t1.zipcode like '20036%' THEN 1 ELSE 0 END) '20036',
+		 SUM( CASE WHEN t1.zipcode like '20037%' THEN 1 ELSE 0 END) '20037',
+		 SUM( CASE WHEN t1.zipcode like '20706%' THEN 1 ELSE 0 END) '20706',
+		 SUM( CASE WHEN t1.zipcode like '20740%' THEN 1 ELSE 0 END) '20740',
+		 SUM( CASE WHEN t1.zipcode like '20742%' THEN 1 ELSE 0 END) '20742',
+		 SUM( CASE WHEN t1.zipcode like '20743%' THEN 1 ELSE 0 END) '20743',
+		 SUM( CASE WHEN t1.zipcode like '20746%' THEN 1 ELSE 0 END) '20746',
+		 SUM( CASE WHEN t1.zipcode like '20770%' THEN 1 ELSE 0 END) '20770',
+		 SUM( CASE WHEN t1.zipcode like '20091%' THEN 1 ELSE 0 END) '20091',
+		 SUM( CASE WHEN t1.zipcode like '20910%' THEN 1 ELSE 0 END) '20910',
+		 SUM( CASE WHEN t1.zipcode like '22150%' THEN 1 ELSE 0 END) '22150',
+		 '' '.'
+		 /*
+		 ,
 		 SUM( CASE WHEN t1.zipcode not in ('20001','20000','20002','20003','20004','20005','20007','20008','20009','20010','20011','20012',
 		 									   '20013','20015','20016','20017','20018','20019','20020','20024','20032','20036','20037','20706',
-		 									   '20740','20742','20743','20746','20770','20091','20910','22150') THEN 1 ELSE 0 END) 'unknown'
+		 									   '20740','20742','20743','20746','20770','20091','20910','22150') THEN 1 ELSE 0 END) as 'unknown'
+		*/
 FROM #temptable1 t1
 
 -- **************************************  LANGUAGE ********************************************************************
@@ -355,16 +373,16 @@ FROM #temptable1 t1
 -- Also the 'unknown' section will need to be updated to account for any new languages.
 SELECT  SUM( CASE WHEN  p.language LIKE '%Amharic%' THEN 1 ELSE 0 END)'Amharic',
 		SUM( CASE WHEN (p.language LIKE '%Chinese%' 
-			  OR p.language LIKE  '%Manda%' 
-			  OR p.language LIKE  '%Cantonese%') 
-    			THEN 1 ELSE 0 END)  'Chinese',
-		SUM( CASE WHEN (p.language =    'English' 
-				 OR p.language =    'Eng') 
+			  OR p.language LIKE     '%Manda%' 
+			  OR p.language LIKE     '%Cantonese%') 
+    			THEN 1 ELSE 0 END)   'Chinese',
+		SUM( CASE WHEN (p.language = 'English' 
+				 OR p.language =     'Eng') 
     			THEN 1 ELSE 0 END) 'English',
-		SUM(CASE WHEN p.language LIKE  '%French%' THEN 1 ELSE 0 END) 'French',
-		SUM(CASE WHEN p.language LIKE  '%Kore%' THEN 1 ELSE 0 END)	  'Korean',
-		SUM(CASE WHEN p.language LIKE  '%Other%' THEN 1 ELSE 0 END)  'Other',
-		SUM(CASE WHEN p.language LIKE  '%Spanish%' THEN 1 ELSE 0 END)'Spanish',
+		SUM(CASE WHEN p.language LIKE '%French%' THEN 1 ELSE 0 END) 'French',
+		SUM(CASE WHEN p.language LIKE '%Kore%' THEN 1 ELSE 0 END)	  'Korean',
+		SUM(CASE WHEN p.language LIKE '%Other%' THEN 1 ELSE 0 END)  'Other',
+		SUM(CASE WHEN p.language LIKE '%Spanish%' THEN 1 ELSE 0 END)'Spanish',
 		SUM(CASE WHEN
 		         (
 			     p.language LIKE 'arabic%'     or
@@ -388,10 +406,11 @@ FROM patients p, users u, enc e
 
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
-AND e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 					
 
@@ -434,12 +453,12 @@ FROM #temptable1 t1
 
 -- ************************************** INSURANCE  ********************************************************************
 
-SELECT #temptable3.pid, id.insorder, id.seqno, i.insurancename
+SELECT #temptable2.pid, id.insorder, id.seqno, i.insurancename
 INTO #tempinsurance3
-FROM #temptable3
-	LEFT JOIN insurancedetail id  on #temptable3.pid=id.pid  AND id.deleteflag=0
+FROM #temptable2
+	LEFT JOIN insurancedetail id  on #temptable2.pid=id.pid  AND id.deleteflag=0
 	LEFT JOIN insurance i		  on id.insid=i.insid		 AND  i.deleteFlag = 0
-ORDER BY #temptable3.pid, id.seqno, id.insorder desc
+ORDER BY #temptable2.pid, id.seqno, id.insorder desc
 
 	DELETE FROM #tempinsurance3
 	WHERE (#tempinsurance3.seqno > 1)
@@ -541,14 +560,14 @@ FROM #tempinsurance2 ti2
 
 -- ************************************** #TempSSA Creation ********************************************************
 SELECT 
-	t3.pid,
+	t2.pid,
 	ssa.PovertyLevel, 
 	ssa.AssignedDate
 
 INTO #tempSSA
-FROM #temptable3 t3
-LEFT JOIN slidingscaleassigned ssa on t3.pid=ssa.patientId  AND SSA.deleteflag=0
-ORDER BY t3.pid
+FROM #temptable2 t2
+LEFT JOIN slidingscaleassigned ssa on t2.pid=ssa.patientId  AND SSA.deleteflag=0
+ORDER BY t2.pid
 
 SELECT tssa.pid, tssa.PovertyLevel, convert(date,tssa.AssignedDate) AssignedDate
 INTO #tempSSAenc
@@ -604,9 +623,9 @@ FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum',  'CONFDNTL','DEAF-FU','DEAF-NEW', 
+					'GYN-FU', 'GYN-NEW', 'MAT', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status = 'CHK'
@@ -619,9 +638,9 @@ FROM patients p, users u, enc e
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum',  'CONFDNTL','DEAF-FU','DEAF-NEW', 
+					'GYN-FU', 'GYN-NEW', 'MAT', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 
 					
@@ -778,10 +797,11 @@ and e.date between @start_date and @end_date
 and e.status = 'chk'
 and e.deleteflag = 0
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
-					 )
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
+					)
 
 -- **************************************** NEW DENTAL PATIENTS************************************************
 SELECT count(DISTINCT tne.pid) New_Dental_Pts
@@ -807,7 +827,7 @@ AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
 AND e.deleteflag = '0'
 
---NEW Vision PTS DISTINCT
+--NEW Dental PTS DISTINCT
 SELECT 
 	count(DISTINCT tnd.pid) AS NEW_PTS_DENTAL_unique
 FROM #tempNEWdental tnd
@@ -886,10 +906,11 @@ WHERE p.pid=u.uid
 AND p.pid=e.patientid
 AND e.date BETWEEN @start_date AND @end_date
 AND e.status='CHK'
-AND e.visittype in (
-					'ADULT-FU','ADULT-NEW','ADULT-PE','ADULT-URG',
-					'DEAF-FU','DEAF-NEW','GYN-FU','GYN-NEW','GYN-URG',
-					'PED-PRENAT','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF' -----------------------------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+AND  e.visittype in (
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
 					)
 AND eid.code LIKE 'Z34%'
 
@@ -919,10 +940,11 @@ FROM enc e, users u, patients p
 WHERE p.pid = u.uid
 AND e.patientid = p.pid 
 AND  e.visittype in (
-					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','CONFDNTL','PED-PRENAT',
-					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','Asylum','GYN-FU',
-					'GYN-NEW','RCM-OFF', 'DEAF-FU','DEAF-NEW','NURSE','EXCH-EX','EXCH-NEW', 'MAT'
-					 )
+					'ADULT-FU', 'ADULT-NEW','ADULT-PE','ADULT-URG','Asylum', 'BH-THERAPY',
+					'BHC-FU', 'BHC-NEW', 'CONFDNTL','DEAF-FU','DEAF-NEW', 'EXCH-EX','EXCH-NEW', 
+					'EYE-FU', 'EYE-NEW', 'GPS', 'GYN-FU', 'GYN-NEW', 'HLTED-IND', 'MAT', 'NURSE', 'PED-PRENAT',
+					'PED-PRENAT-NEW','PEDS-FU','PEDS-PE','PEDS-URG','RCM-OFF'
+					)
 AND e.date BETWEEN '10/01/2009' AND @end_date
 AND e.status = 'CHK'
 AND u.ulname <> '%TEST%'
