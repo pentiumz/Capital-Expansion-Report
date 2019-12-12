@@ -50,8 +50,6 @@ set  @end_date   =  '2019-09-30'
 #temptable2: Encounters
 */
 
-
-
 -- THE #TEMPTABLE1 (UNIQUE PATIENTS)
 SELECT DISTINCT  p.pid, u.dob, u.sex, p.race, u.zipcode, p.language, p.ethnicity, u.upcity
 INTO #temptable1 
@@ -153,7 +151,7 @@ AND e.deleteflag = '0'
 --UNIQUE by GENDER
 SELECT  SUM( CASE WHEN   t1.sex ='female'THEN 1 ELSE 0 END) 'Female',
 		SUM( CASE WHEN   t1.sex ='male'  THEN 1 ELSE 0 END) 'Male',
-		SUM( CASE WHEN ((t1.sex <> 'male') AND (t1.sex <> 'female' ))THEN 1 ELSE 0 END) 'unknown'
+		SUM( CASE WHEN ((t1.sex <> 'male') AND (t1.sex <> 'female' ))THEN 1 ELSE 0 END) 'Unknown'
 FROM #temptable1 t1
 
 -- *********************************** RACE ***********************************************************************
@@ -161,13 +159,18 @@ FROM #temptable1 t1
 
 -- The below code will attempt to assign a client INTO the race bucket that they best fit INTO.
 SELECT 
-	    SUM(CASE WHEN ((p.race LIKE '%Indian%')  OR (p.race LIKE '%Alaska%'))  THEN 1 ELSE 0 END)  'American Indian/Alaska Native',
+	    SUM(CASE WHEN ((p.race LIKE '%Indian%')  
+			OR (p.race LIKE '%Alaska%'))  THEN 1 ELSE 0 END)  'American Indian/Alaska Native',
 	    SUM(CASE WHEN p.race LIKE   '%asian%' THEN 1 ELSE 0 END)									'Asian',
 	    SUM(CASE WHEN p.race LIKE   '%black%' THEN 1 ELSE 0 END)									'Black',
 	    SUM(CASE WHEN p.race LIKE   '%more%'  THEN 1 ELSE 0 END)									'More than one race',
-	    SUM(CASE WHEN ((p.race LIKE '%Pacific%')  OR (p.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)  'Native Hawaiian/ Other Pacific Islander',
-	    SUM(CASE WHEN (p.race LIKE  '%Other%' AND p.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END) 'Other Race',
-	    SUM(CASE WHEN ((p.race LIKE '%Refuse%') OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') OR (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
+	    SUM(CASE WHEN ((p.race LIKE '%Pacific%')  
+			OR (p.race LIKE '%Hawaii%')) THEN 1 ELSE 0 END)											'Native Hawaiian/ Other Pacific Islander',
+	    SUM(CASE WHEN (p.race LIKE  '%Other%' 
+			AND p.race NOT LIKE '%Other P%')  THEN 1 ELSE 0 END)									'Other Race',
+	    SUM(CASE WHEN ((p.race LIKE '%Refuse%') 
+			OR (p.race LIKE '%unknown%') OR (p.race like '%declined%') 
+			OR (p.race = ''))  THEN 1 ELSE 0 END)	'Unknown',
 	    SUM(CASE WHEN p.race LIKE   '%white%' THEN 1 ELSE 0 END)									'White'
 
 FROM patients p, users u, enc e
@@ -469,9 +472,8 @@ FROM   #tempinsurance3
 WHERE  #tempinsurance3.insOrder is not null
 and	   #tempinsurance3.seqno is not null
 
--- del SELECT * FROM #tempinsurance4
 SELECT 
-	SUM( CASE WHEN ti4.insurancename  LIKE '%alliance%' THEN 1 ELSE 0 END)   'Alliance',
+	SUM( CASE WHEN  ti4.insurancename  LIKE '%alliance%' THEN 1 ELSE 0 END)   'Alliance',
 	SUM( CASE WHEN (ti4.insurancename LIKE '%medicaid%' OR 
 					ti4.insuranceName like 'DC Wrap' or
 					ti4.insurancename LIKE '%spec needs%' or
@@ -482,7 +484,7 @@ SELECT
 	SUM( CASE WHEN  ti4.insurancename LIKE '%medicare%' THEN 1 ELSE 0 END)   'Medicare',
 	SUM( CASE WHEN  ti4.insurancename LIKE ''			THEN 1 ELSE 0 END)	 'Other Public', -- Not the best way to capture this info. It should probably should this be a manual count
 	SUM( CASE WHEN 
-			   	   (ti4.insurancename LIKE '%private%' 
+				(ti4.insurancename LIKE '%private%' 
 			     OR ti4.insurancename LIKE '%Blue Cross%'
 			     OR ti4.insurancename LIKE '%BlueCross%'
 			     OR ti4.insurancename LIKE '%Aetna%'
